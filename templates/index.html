@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html >
+<!--From https://codepen.io/frytyler/pen/EGdtg-->
+<head>
+  <meta charset="UTF-8">
+  <title>ML API</title>
+  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+  
+</head>
+
+<body>
+ <div class="login">
+	<h1>Recommend Songs</h1>
+
+     <!-- Main Input For Receiving Query to our ML -->
+    <form action="{{ url_for('predict')}}"method="post">
+    	<input type="text" name="playlist link" placeholder="playlist link" required="required" />
+        <button type="submit" class="btn btn-primary btn-block btn-large">Recommend</button>
+    </form>
+
+   <br>
+   <br>
+   {{ prediction_text }}
+   <div class='results'>
+    <h2 style='color: #ececec'>Results</h2>
+        {% for song in songs %}
+        <p class='song' style="font-size: 11pt"> <a  href={{song[1]}} target="_blank"> {{ song[0]}} </a> </p>
+        {% endfor %}    
+</div>
+ </div>
+
+
+</body>
+</html>
