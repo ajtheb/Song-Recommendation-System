@@ -6,6 +6,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
 def feature_extraction(sp,playlist_link):
     ## feature extraction
     playlist_URI = playlist_link.split("/")[-1].split("?")[0]
@@ -94,7 +95,7 @@ def create_feature_set(df):
     scaler = MinMaxScaler()
     normalized_df =pd.DataFrame(scaler.fit_transform(df[feature_cols]),columns=feature_cols)
         
-    df['genres_list'] = df['Track_genres'].apply(lambda x: x.split(","))
+    df['genres_list'] = df['Track_genres'].apply(lambda x: str(x).split(","))
     # TF-IDF implementation
     tfidf = TfidfVectorizer()
     tfidf_matrix =  tfidf.fit_transform(df['genres_list'].apply(lambda x: " ".join(x)))
@@ -107,27 +108,29 @@ def create_feature_set(df):
     return final
 
 def main(your_playlist):
-    cid=''
-    secret=''
+    cid= '196eaf2d1c0e4bdbbb8bd10935ed686f'
+    secret= '0d4433c782f6445e812691c854975cee'
     #Authentication - without user
     client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
     sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
     bollywood_songs = 'https://open.spotify.com/playlist/7sTkp2X5Aq84v9w9UtfkaF?si=1499ad823a874dbf'
     df=feature_extraction(sp,your_playlist)
-    all_df=feature_extraction(sp,bollywood_songs)
+    print("here 1")
+    all_df=pd.read_csv('All_Time_Hindi_Songs.csv')
+    print("here 2")
     DF=pd.concat([df,all_df],axis=0)
     DF=DF.drop_duplicates('Track_name')
 
-    DF_feature_set=create_feature_set(DF)
-    playlist_feature_set=DF_feature_set[DF_feature_set['Track_uri'].isin(df['Track_uri'].values)]
-    non_playlist_feature_set=DF_feature_set[~(DF_feature_set['Track_uri'].isin(df['Track_uri'].values))]
+    DF_feature_set = create_feature_set(DF)
+    playlist_feature_set = DF_feature_set[DF_feature_set['Track_uri'].isin(df['Track_uri'].values)]
+    non_playlist_feature_set = DF_feature_set[~(DF_feature_set['Track_uri'].isin(df['Track_uri'].values))]
 
     non_play=DF[~DF['Track_uri'].isin(df['Track_uri'].values)]
     non_playlist_feature_set.drop(['Track_uri'],axis=1,inplace=True)
     playlist_feature_set.drop(['Track_uri'],axis=1,inplace=True)
     playlist_feature_set_1 = playlist_feature_set.sum(axis = 0)
-    
+    print(non_playlist_feature_set.shape,playlist_feature_set_1.shape)
     # Find cosine similarity between the playlist and the complete song set
     non_play['sim'] = cosine_similarity(non_playlist_feature_set, playlist_feature_set_1.values.reshape(1, -1))[:,0]
     non_playlist_df_top_40 = non_play.sort_values('sim',ascending = False).head(40)
