@@ -1,6 +1,5 @@
 import numpy as np
-from flask import Flask, request, jsonify, render_template
-import pickle as pickle
+from flask import Flask, request, render_template
 from model import main
 
 
