@@ -107,8 +107,8 @@ def create_feature_set(df):
     return final
 
 def main(your_playlist):
-    cid='196eaf2d1c0e4bdbbb8bd10935ed686f'
-    secret='0d4433c782f6445e812691c854975cee'
+    cid=''
+    secret=''
     #Authentication - without user
     client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
     sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
